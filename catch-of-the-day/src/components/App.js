@@ -13,12 +13,22 @@ class App extends React.Component {
     this.addFish = this.addFish.bind(this);
     this.loadSamples = this.loadSamples.bind(this);
     this.addToOrder = this.addToOrder.bind(this);
-    this.state = {
-      fishes: {
 
-      },
+    this.state = {
+      fishes: {},
       order: {}
     };
+  }
+
+  componentWillMount() { // comes from react
+    this.ref = base.syncState(`${this.props.params.storeId}/fishes`, {
+      context: this,
+      state: 'fishes'
+    });
+  }
+
+  componentWillUnmount() {
+    base.removeBinding(this.ref);
   }
 
   addFish(fish) {
