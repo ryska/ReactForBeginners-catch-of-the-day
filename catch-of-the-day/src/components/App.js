@@ -12,14 +12,22 @@ class App extends React.Component {
     super();
     this.addFish = this.addFish.bind(this);
     this.updateFish = this.updateFish.bind(this);
-    this.loadSamples = this.loadSamples.bind(this);
+    this.removeFish = this.removeFish.bind(this);
+    // this.loadSamples = this.loadSamples.bind(this);
     this.addToOrder = this.addToOrder.bind(this);
+    this.removeFromOrder = this.removeFromOrder.bind(this);
 
     this.state = {
       fishes: {},
       order: {}
-    };
+    }
   }
+
+  // or this:
+  // state = {
+  //   fishes: {},
+  //   order: {}
+  // };
 
   componentWillMount() { // comes from react
     this.ref = base.syncState(`${this.props.params.storeId}/fishes`, {
@@ -61,13 +69,20 @@ class App extends React.Component {
     this.setState({fishes});
   }
 
-  loadSamples() {
+  removeFish(key) {
+    const fishes = {...this.state.fishes};
+    delete fishes[key]; // doesnt work fith firebase
+    fishes[key] = null;
+    this.setState({fishes});
+  }
+
+  loadSamples = () => {
     this.setState(
       {
         fishes: sampleFishes
       }
     );
-  }
+  }; // semicolon is important if binding is with the arrow function
 
   addToOrder(key) {
     // take a copy of our state
@@ -75,6 +90,12 @@ class App extends React.Component {
     // update or add the new number of fish ordered
     order[key] = order[key] + 1 || 1;
     // update state
+    this.setState({order});
+  }
+
+  removeFromOrder(key) {
+    const order = {...this.state.order};
+    delete order[key];
     this.setState({order});
   }
 
@@ -92,14 +113,28 @@ class App extends React.Component {
             }
           </ul>
         </div>
-        <Order fishes={this.state.fishes} order={this.state.order} params={this.props.params} />
+        <Order
+          fishes={this.state.fishes}
+          order={this.state.order}
+          params={this.props.params}
+          removeFromOrder={this.removeFromOrder}
+           />
+
         <Inventory
           addFish={this.addFish}
           loadSamples={this.loadSamples}
           fishes={this.state.fishes}
-          updateFish={this.updateFish}/>
+          updateFish={this.updateFish}
+          removeFish={this.removeFish}
+          storeId={this.props.params.storeId}
+          />
       </div>
     )
   }
 }
+
+App.propTypes = {
+  params: React.PropTypes.object.isRequired,
+}
+
 export default App;
